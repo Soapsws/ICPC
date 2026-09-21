@@ -17,52 +17,27 @@ int main() {
         cin >> stores[i];
     }
 
-    vector<long long> regpref(n);
-    vector<long long> abspref(n);
-
-    regpref[0] = stores[0];
-    abspref[0] = abs(stores[0]);
-    for (int i = 1; i < n; i++) {
-        regpref[i] = regpref[i - 1] + stores[i];
-        abspref[i] = abspref[i - 1] + abs(stores[i]);
+    long long abs_sum = 0;
+    for (long long i : stores) {
+        abs_sum += abs(i);
     }
 
     long long maxprofit = 0;
 
-    // separate for i = 0
-    for (int j = 0; j < n; j++) {
-        if (maxprofit < 2 * regpref[j] + (abspref[n - 1] - abspref[j])) {
-            maxprofit = 2 * regpref[j] + (abspref[n - 1] - abspref[j]);
+    vector<long long> kadane(n);
+    kadane[0] = 2 * stores[0] - abs(stores[0]);
+
+    for (int i = 1; i < n; i++) {
+        long long ri = 2 * stores[i] - abs(stores[i]);
+        if (ri > kadane[i - 1] + ri) {
+            kadane[i] = ri;
+        } else {
+            kadane[i] = kadane[i-1] + ri;
         }
     }
 
-    int lp = 0;
-    int rp = 1;
-
-    while (lp < n && rp < n) {
-        lp++;
-        while(lp < n && stores[lp] <= 0) {
-            lp++;
-        }
-        if (lp >= n) break;
-        while(rp < n && rp < lp) {
-            rp++;
-        }
-        if (rp >= n) break;
-
-        // lp, rp same (both positive)
-        while (rp < n && regpref[rp] - regpref[lp - 1] >= 0) {
-            if (maxprofit < 2 * (regpref[rp] - regpref[lp - 1]) + (abspref[lp - 1]) + (abspref[n - 1] - abspref[rp])) {
-                maxprofit = 2 * (regpref[rp] - regpref[lp - 1]) + (abspref[lp - 1]) + (abspref[n - 1] - abspref[rp]);
-            }
-            rp++;
-        }
-    }
-
-    // separate case: no window at all
-    if (maxprofit < abspref[n - 1]) {
-        maxprofit = abspref[n - 1];
-    }
+    long long a = 0;
+    maxprofit = max(a , *max_element(kadane.begin(), kadane.end())) + abs_sum;
 
     cout << maxprofit;
     return 0;
