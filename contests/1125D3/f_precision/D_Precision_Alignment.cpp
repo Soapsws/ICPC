@@ -38,18 +38,21 @@ int main() {
         std::sort(labs.begin(), labs.end(), [](const vector<long long>&a, const vector<long long>& b) {
             long long suma = a[0] + a[1] + a[2];
             long long sumb = b[0] + b[1] + b[2];
-            return suma >= sumb;
+            return suma < sumb;
         } );
 
-        long long best = 0;
-        long long lp = 0;
-        // chec this later
-        long long rp = numeric_limits<long long>::max() / 2;
+        long long lp = LLONG_MAX;
+        for (vector<long long> i : labs) {
+            lp = min(lp, i[0] + i[1] + i[2]);
+        }
+        long long rp = lp + k;
+        long long best = lp;
+
         while (lp <= rp) {
-           long long med = (lp + rp / 2); // this is our tentative S value
+           long long med = (lp + (rp - lp) / 2); // this is our tentative S value
            // feasible
-           bool possible = false;
-           long long kcopy = k;
+           bool possible = true;
+           long long used = 0;
 
             for (long long i = 0; i < n; i++) {
                 // fix labs until we reach a good threshold
@@ -65,17 +68,24 @@ int main() {
                 }
                 if (a > b || a > c || b > c) {
                     // pumpable
-                    long long diff = med - currsum;
-                    if (diff > kcopy) {
+                    used += med - currsum;
+                    if (used > k) {
                         possible = false;
                         break;
                         // can't pump
                     }
-                    kcopy -= diff;
                 } else {
-                    // not possible, it's not above S right now and we can never make it
-                    possible = false;
-                    break;
+                    if (a == b && a == c) {
+                        possible = false;
+                        break;
+                    }
+                    long long cost = med - currsum + 2 * min(c - b + 1, b - a + 1);
+                    used += cost;
+                    if (used > k) {
+                        possible = false;
+                        break;
+                        // can't pump
+                    }
                 }
             }
 

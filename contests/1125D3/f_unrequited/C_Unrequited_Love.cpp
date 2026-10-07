@@ -8,6 +8,7 @@
 #include <numeric>
 #include <climits>
 #include <utility>
+#include <unordered_map>
 
 using namespace std;
 
@@ -27,24 +28,18 @@ int main() {
             cin >> a[i];
         }
 
-        vector<vector<int>> loves;
-        for (int i = 0; i < 60009; i++) {
-            vector<int> g;
-            loves.push_back(g);
-        }
-
-        // cout << loves.size() << '\n';
+        unordered_map<int, vector<int>> loves;
 
         // Started at (i)
         for (int i = 0; i < n - 4; i++) {
             int love = a[i] + a[i + 2] - a[i + 4];
             // if negative normalize (could be buggy)
-            loves[love+30000].push_back(i);
+            loves[love].push_back(i);
         }
 
-        int total = 0;
+        long long total = 0;
 
-        for (vector<int> compartment: loves) {
+        for (const auto& [i, compartment] : loves) {
             if (compartment.size() < 2) continue;
             if (compartment.size() > 1) {
                 // Now, we perform our legality check
